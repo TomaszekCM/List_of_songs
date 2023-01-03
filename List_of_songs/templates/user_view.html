@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+    Choir assistant - {{ specific_user.first_name }} {{ specific_user.last_name }}
+
+{% endblock %}
+
+
+{% block content %}
+
+<!--<div class="row">-->
+    <div class="row">
+        <div class="col-5 col-sm-3 py-3 ml-auto">
+            <strong>Imię:</strong>
+        </div>
+        <div style="overflow-wrap: break-word" class="col-5 col-sm-3 py-3 mr-auto">
+            {{ specific_user.first_name }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5 col-sm-3 py-3 ml-auto">
+            <strong>Nazwisko:</strong>
+        </div>
+        <div style="overflow-wrap: break-word" class="col-5 col-sm-3 py-3 mr-auto">
+            {{ specific_user.last_name }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5 col-sm-3 py-3 ml-auto">
+            <strong>Nazwa użytkownika:</strong>
+        </div>
+        <div style="overflow-wrap: break-word" class="col-5 col-sm-3 py-3 mr-auto">
+            {{ specific_user.username }}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5 col-sm-3 py-3 ml-auto">
+            <strong>Adres email:</strong>
+        </div>
+        <div style="overflow-wrap: break-word" class="col-5 col-sm-3 py-3 mr-auto break-word">
+            <p>{{ specific_user.email }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5 col-sm-3 py-3 ml-auto">
+            <strong>Numer telefonu:</strong>
+        </div>
+        <div style="overflow-wrap: break-word" class="col-5 col-sm-3 py-3 mr-auto">
+            {% if specific_user_ext.phone %}{{ specific_user_ext.phone }}{% endif %}
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-5 col-sm-3 py-3 ml-auto">
+            <strong>Użytkownik aktywnie śpiewający?</strong>
+        </div>
+        <div style="overflow-wrap: break-word" class="col-5 col-sm-3 py-3 mr-auto">
+            {% if specific_user_ext.singer %}Tak{% else %} Nie {% endif %}
+        </div>
+    </div>
+    {% if specific_user.is_superuser %}
+    <div class="row">
+        <div class="col-1 col-sm-3">
+
+        </div>
+        <div class="col col-sm-7 py-5 mr-auto">
+            <h6>Użytkownik na prawach administratora</h6>
+        </div>
+    </div>
+    {% endif %}
+    <div class="row">
+        <div class="col">
+        </div>
+    </div>
+    {% if user.id == specific_user.id or user.is_superuser %}
+    <br><div class="row">
+        <div class="col-1 col-sm-3">
+        </div>
+        <div class="col col-sm-7 py-2 mr-auto">
+                    <h6><a href="{{ specific_user.id }}/change">Edytuj dane</a>{% if user.id == specific_user.id %}  |
+        <a href="{{ specific_user.id }}/change_password">Zmień hasło</a>{% endif %}</h6><br>
+        </div>
+    </div>
+    {% endif %}
+
+{% endblock %}

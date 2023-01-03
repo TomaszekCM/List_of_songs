@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Choir assistant - lista chórzystów
+{% endblock %}
+
+
+{% block page_info %}
+
+    Lista chórzystów
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12 mx-auto">
+        <div class="accordion" id="accordionExample">
+<!--          <div class="card">-->
+            <div class="card-header" id="headingOne">
+                <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <h4 class="text-dark">Aktywni chórzyści</h4>
+                </button>
+            </div>
+            <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+              <div class="card-body">
+                <ol>
+                    {% for u in users %}
+                    <p><li><a href="../user/{{ u.id }}">{{ u.first_name }} {{ u.last_name }} {% if user.is_superuser %}({{ u.username }}){% endif %}</a></li></p>
+                    {% endfor %}
+                </ol>
+              </div>
+            </div>
+<!--          </div>-->
+<!--          <div class="card">-->
+            <div class="card-header" id="headingTwo">
+                <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                    <h4 class="text-dark">Nieaktywni chórzyści</h4>
+                </button>
+            </div>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionExample">
+              <div class="card-body">
+                <ol>
+                    {% for user in inactive_users %}
+                    <p><li><a href="../user/{{ user.id }}">{{ user.first_name }} {{ user.last_name }} {% if user.is_superuser %}({{ user.username }}) {% endif %}</a></li></p>
+                    {% endfor %}
+                </ol>
+              </div>
+            </div>
+<!--          </div>-->
+        </div>
+    </div>
+</div>
+
+{% endblock %}

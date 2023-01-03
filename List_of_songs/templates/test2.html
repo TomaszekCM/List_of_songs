@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+
+{% block title %}
+Choir assistant - dodawanie utworów do wydarzenia
+{% endblock %}
+
+{% block style %}
+<style>
+.hidden {
+    display: none;
+    }
+
+</style>
+{% endblock %}
+
+
+
+{% block page_info %}
+
+Ustaw utwory dla wydarzenia:<br> <b>{{ event.name }}</b><br>{{ event.date }}, {{ event.start_hour }}
+<br><br>
+
+
+<button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample"
+        aria-expanded="false" aria-controls="collapseExample">
+    Skopiuj listę utworów
+</button>
+<div class="collapse" id="collapseExample">
+    <div class="card card-body">
+
+        <!--<br><br>-->
+        <!--    <div class="container">-->
+        <div class="row">
+            <div class="col">
+                <form method="post">
+                    {% csrf_token %}
+                    Nadchodzące wydarzenia:<br>
+                    <select name="future_event" id="future" style="width: 45%;" onchange="clearPastSelect()">
+                        <option value=""></option>
+                        {% for event in future_events %}
+                        <option value="{{ event.id }}">{{ event.name }} - {{ event.date }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    Wydarzenia minione:<br>
+                    <select name="past_event" id="previous" style="width: 45%;" onchange="clearFutureSelect()">
+                        <option value=""></option>
+                        {% for event in previous_events %}
+                        <option value="{{ event.id }}">{{ event.name }} - {{ event.date }}</option>
+                        {% endfor %}
+                    </select>
+                    <br><br>
+                    <button type="submit">Ustaw</button>
+                </form>
+            </div>
+        </div>
+        <!--    </div>-->
+    </div>
+</div>
+
+
+
+
+<!--<div class="container">-->
+<!--</div><br>-->
+
+
+
+<div class="container">
+
+        <form method="post" class="small alert mx-auto" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row py-2">
+        <div class="col-9 mx-auto">
+            <div class="alert alert-secondary text-center"> Nazwa utworu/kolejność:</div>
+        </div>
+    </div>
+            <div class="row">
+                <div class="row-12 row-md-7 mx-auto">
+    {% for song, number in songs_with_numbers.items %}
+        <div class="form-row selectedSongs {{ song.id }} py-2" align="left" {% if song not in current_songs %} style="display: none; border-bottom: 1px solid gray;" {% else %} style="border-bottom: 1px solid gray;"{% endif %} id="selectedSongs {{ song.id }}">
+        <div class="col-2 ml-auto">
+            <div hidden>
+                {% if number %}
+                <input type="checkbox" id="checkbox {{ song.id }}" name="song_present_{{ song.id }}" checked>
+                {% else %}
+                <input type="checkbox" id="checkbox {{ song.id }}" name="song_present_{{ song.id }}">
+                {% endif %}
+            </div>
+            <input type="button" class="tag" id="xFromList" name="{{ song }}" value="&#10008;" onclick="removeFromList('{{ song.id }}')"/>
+        </div>
+        <div class="col">
+                <label>
+                    <b> {{ song.name }}</b> ({{ song.composer }})
+                </label>
+
+        </div>
+        <div class="col-4 mx-auto">
+<!--            <div align="center">-->
+            {% if number != 99 %}
+            <label class="alert order_{{ song.id }}"><input type="number"
+                                                            name="song_number_{{ song.id }}" min="0" style="width: 80px" value="{{ number }}"></label>
+            {% else %}
+            <label class="alert order_{{ song.id }}"><input type="number"
+                                                            name="song_number_{{ song.id }}" min="0" style="width: 80px"></label>
+
+            {% endif %}
+<!--                </div>-->
+        </div>
+    </div>
+    {% endfor %}
+    </div></div>
+
+
+
+
+            <br>
+    <input type="submit" value="Ustaw utwory">
+</form>
+
+
+    <hr>
+    <div class="row">
+        <div class="col-10 col-md-5 py-4 mx-auto">
+            Dostępne utwory:
+        </div>
+    </div>
+
+</div>
+<div class="container">
+    <div class="row py-2">
+
+        <div class="col-12 col-sm-4 pb-5">
+            <input
+                    class="form-control form-control-sm"
+                    name="searchBar"
+                    id="myInput"
+                    onkeyup="myFunction()"
+                    type="text"
+                    placeholder="szukaj"
+                    style="position:absolute; left:1px;"
+            />
+        </div>
+
+
+        <div class="col-12 col-sm-5 ml-auto">
+
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample5"
+                    aria-expanded="false" aria-controls="collapseExample5">
+                Wyszukaj po tagach
+            </button>
+            <div class="collapse" id="collapseExample5">
+                <div class="card card-body">
+
+                    <div class="py-1">
+                        <select style="max-width: 180px;"
+                                onkeyup="searchTagFunction()"
+                                id="mySelect"
+                                class="form-control-sm">
+<!--                            <option value=""></option>-->
+                            {% for name, tag  in tags.items %}
+                            <option value="{{ tag }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn-sm add_tag_btn" onclick="setSearchTags()">Dodaj Tag</button>
+                    </div>
+
+
+                    <div class="pt-3" id="selected_tags">
+                        {% for name, tag in tags.items %}
+                                <div style=" width: 100%; text-align: left; font-size:12pt;" id="{{ tag }}" class="hidden">
+                                    <input type="button" class="tag" id="x" name="{{ tag }}" value="&#10008;" onclick="removeFilter('{{ tag }}')"/>
+                                    {{ name }}<br><br>
+
+                                </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12 col-lg-6 col-md-9 alert mx-auto">
+        <ol id="myOL">
+            {% for song, tags in songs_tags.items %}
+            <div class="myDiv song {{ tags }}"  id="SongList {{ song.id }}">
+                    <li class="py-2">
+<!--                    <p hidden>{{ song.tags }}</p>-->
+                    <input type="button" class="SongList {{ song }}" id="addToList {{ song.id }}" name="{{ song }}" value="&#10003;" onclick="addToList('{{ song.id }}')"/>&nbsp;
+                    <a>{{ song.name }} ({{ song.composer }}) </a>
+                </li>
+
+            </div>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block js_block %}
+
+{% load static %}
+<script type="text/javascript" src="{% static 'js/search_bar.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/event_songs.js' %}"></script>
+
+{% endblock %}

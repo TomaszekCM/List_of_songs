@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Choir assistant - usuwanie utworu
+{% endblock %}
+
+
+{% block page_info %}
+
+    Usuwanie utworu
+
+{% endblock %}
+
+{% block content %}
+
+
+<p>    Czy na pewno chceszu usunąć utwór: "{{ song.name }}" - ({{ song.composer }})?</p>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col py-3">
+                    <input type="submit" value="Usuń"  name="Usuń" />
+                    <input type="submit" value="Anuluj"/>
+                </div>
+            </div>
+        </form>
+
+
+{% endblock %}

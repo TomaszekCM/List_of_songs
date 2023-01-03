@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}
+Choir assistant - utwory
+{% endblock %}
+
+{% block style %}
+<style>
+.hidden {
+    display: none;
+    }
+
+</style>
+{% endblock %}
+
+{% block page_info %}
+
+<!--    <br>-->
+<!--        <div class="piosenka tag_bn tag_a_cappella">aaaaa</div>-->
+<!--    <br>-->
+<!--        <div class="piosenka tag_wielkanoc tag_akompaniament">bbbbbb</div>-->
+<!--    <br>-->
+<!--        <div class="piosenka tag_bn tag_akompaniament">cccccc</div>-->
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-10 col-md-5 py-4 mx-auto">
+            Lista utworów
+        </div>
+    </div>
+    <div class="row py-2">
+
+        <div class="col-12 col-sm-4 pb-5">
+            <input
+                    class="form-control form-control-sm"
+                    name="searchBar"
+                    id="myInput"
+                    onkeyup="myFunction()"
+                    type="text"
+                    placeholder="szukaj"
+                    style="position:absolute; left:1px;"
+            />
+        </div>
+
+
+        <div class="col-12 col-sm-5 ml-auto">
+
+            <button class="btn btn-outline-secondary btn-sm" type="button" data-toggle="collapse" data-target="#collapseExample"
+                    aria-expanded="false" aria-controls="collapseExample">
+                Wyszukaj po tagach
+            </button>
+            <div class="collapse" id="collapseExample">
+                <div class="card card-body">
+
+                    <div class="py-1">
+                        <select style="max-width: 99%;"
+                                onkeyup="searchTagFunction()"
+                                id="mySelect"
+                                class="form-control-sm">
+<!--                            <option value=""></option>-->
+                            {% for name, tag  in tags.items %}
+                            <option value="{{ tag }}">{{ name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button class="btn-sm add_tag_btn" onclick="setSearchTags()" style="max-width: 99%;">Dodaj Tag</button>
+                    </div>
+
+
+                    <div class="pt-3" id="selected_tags">
+                        {% for name, tag in tags.items %}
+                                <div style=" width: 100%; text-align: left; font-size:12pt;" id="{{ tag }}" class="hidden">
+                                    <input type="button" class="tag" id="x" name="{{ tag }}" value="&#10008;" onclick="removeFilter('{{ tag }}')"/>
+                                    {{ name }}<br><br>
+
+                                </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12 col-lg-6 col-md-9 alert mx-auto">
+        <ol id="myOL">
+            {% for song, tags in songs_tags.items %}
+            <div class="myDiv song {{ tags }}">
+                <li class="py-2">
+                    <p hidden>{{ song.tags }}</p>
+                    <a href="../song/{{ song.id }}/0">{{ song.name }} ({{ song.composer }}) </a>
+                </li>
+            </div>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block js_block %}
+
+{% load static %}
+<script type="text/javascript" src="{% static 'js/search_bar.js' %}"></script>
+{% endblock %}

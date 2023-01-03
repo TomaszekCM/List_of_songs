@@ -1,0 +1,184 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <title>
+        {% block title %}
+        Lista posiadanych utworów
+        {% endblock %}
+    </title>
+    {% block style %}
+    {% endblock %}
+</head>
+<body>
+
+
+{% block navigation %}
+
+<nav class="navbar navbar-expand-md navbar-dark bg-dark">
+
+    <div class="container-fluid">
+        <a href="/home">
+            <img class="site-logo pr-3" src="http://www.cantoresminores.pl/wp-content/uploads/2020/12/Cantores-Minores-logo-whitekd-web-e1607469889267.png" alt="Cantores Minores – Archikatedralny Chór Męski">
+        </a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapseLinks"
+                aria-expanded="false" aria-label="Toggle Navigarion">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class='collapse navbar-collapse' id='navbarCollapseLinks'>
+            <ul class='navbar-nav'>
+
+                <li class='nav-item'>
+                    <a href='/home' class='nav-link'>Główna</a>
+                </li>
+                {% if user.is_superuser %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Utwory
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{% url 'all_songs' %}">Lista utworów</a>
+                        <a class="dropdown-item" href="{% url 'add_song' %}">Dodaj utwór</a>
+                    </div>
+                </li>
+                {% else %}
+
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Utwory
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{% url 'all_songs' %}">Lista utworów</a>
+                    </div>
+                </li>
+
+
+
+<!--                <li class='nav-item'>-->
+<!--                    <a href="{% url 'all_songs' %}" class='nav-link'>Utwory</a>-->
+<!--                </li>-->
+                {% endif %}
+
+
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="http://example.com"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Chórzyści
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{% url 'all_users' %}">Lista chórzystów</a>
+                        <a class="dropdown-item" href="/user/{{ user.id }}">Moje dane</a>
+                        {% if user.is_superuser %}
+                        <a class="dropdown-item" href="/add_user">Dodaj chórzystę</a>
+                        {% endif %}
+                    </div>
+                </li>
+
+
+<!--                <li class="nav-item dropdown">-->
+<!--                    <a class="nav-link dropdown-toggle" href="http://example.com"-->
+<!--                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
+<!--                        Dokumenty-->
+<!--                    </a>-->
+<!--                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">-->
+<!--                        <a class="dropdown-item" href="/media/VADEMECUM CHÓRZYSTY_2022_02.pdf" TARGET="_blank">Vademecum</a>-->
+<!--                        <a class="dropdown-item" href="/media/ulotka-CM-2021_PL.pdf" TARGET="_blank">Folder</a>-->
+<!--                    </div>-->
+<!--                </li>-->
+
+
+
+
+                {% if user.is_superuser %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="http://example.com"
+                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Backup
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">
+                        <a class="dropdown-item" href="{% url 'backup' %}">Zrób backup bazy danych</a>
+                    </div>
+                </li>
+                {% endif %}
+
+
+            </ul>
+
+<!--Maybe later would be useful-->
+<!--                    <form class="form-inline ml-auto">-->
+<!--                      <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">-->
+<!--                      <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>-->
+<!--                    </form>-->
+        </div>
+        <a href="{% url 'logout' %}" class='nav-link ml-auto' style="color: rgba(255,255,255,.5);">Wyloguj</a>
+    </div>
+</nav>
+
+{% endblock %}
+
+<div class="container-fluid py-3">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h4>
+                    {% block page_info %}
+                    {% endblock %}
+                </h4>
+            </div>
+    </div>
+</div>
+
+<div class="pb-5">
+    <div class="container bg-light">
+        <div class="py-2">
+            {% block content %}
+                <div class="bg-light col">
+
+                </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+
+<!--Only for production - then it wont be necessary to inform user who he is-->
+{% block footer %}
+<footer class="text-right fixed-bottom">
+    <div class="p-2 bg-dark">
+        <h7 style="color: rgba(255,255,255,.5)">Zalogowany użytkownik: {{ user.username }}</h7>
+    </div>
+</footer>
+{% endblock %}
+
+<!--<div class="navbar-static-bottom">-->
+<!--    <h7>Zalogowany użytkownik: {{ user.username }}</h7>-->
+<!--</div>-->
+
+
+</body>
+
+<script type="text/javascript" src="{% static 'js/jquery-3.6.0.js' %}"></script>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+        integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+        integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+        crossorigin="anonymous"></script>
+{% block js_block %}
+{% endblock %}
+
+</html>

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Choir assistant - edycja utworu
+{% endblock %}
+
+
+{% block page_info %}
+    Ręczne ustawianie głosów w utworze: {{ song }}
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="alert">
+    <form method="post">
+        {% csrf_token %}
+
+        {% for key, value in current_voices.items %}
+
+        <div class="form-row">
+            <div class="col-8 col-lg-4">
+                <div class="alert">
+                    <label>
+                        <b> {{ key.first_name }} {{ key.last_name }}</b>
+                    </label>
+                </div>
+            </div>
+            <div class="col-2 col-lg-4 mr-auto">
+                <select name="{{ key }}">
+                    <option value=""></option>
+                    {% for i in song.voices %}
+                    {% if value == i %}
+                    <option value="{{ i }}" selected>{{ i }}</option>
+                    {% else %}
+                    <option value="{{ i }}">{{ i }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div><hr>
+
+        {% endfor %}
+
+        <input type="submit" value="Zapisz">
+    </form>
+
+</div>
+{% endblock %}

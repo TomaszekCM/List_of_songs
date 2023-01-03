@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Choir assistant - utwory
+{% endblock %}
+
+
+{% block page_info %}
+    Lista utworów zawierających tag: "{{ tag.name }}"
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-12 col-lg-6 col-md-9 alert mx-auto">
+        <ol>
+            {% for song in all_songs %}
+            <li class="py-2">
+                <a href="/song/{{ song.id }}/0">{{ song.name }}  ({{ song.composer }}) </a>
+            </li>
+            {% endfor %}
+        </ol>
+    </div>
+</div>
+
+{% endblock %}

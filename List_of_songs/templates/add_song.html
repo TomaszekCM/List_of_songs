@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if add %}
+    Choir assistant - dodawanie utworu
+    {% else %}
+    Choir assistant - edycja utworu {{ song.name }}
+    {% endif %}
+{% endblock %}
+
+
+{% block page_info %}
+    {% if add %}
+    Dodawanie utworu
+    {% else %}
+    Edycja utworu: {{ song.name }} {% if song.composer %}( {{ song.composer }}){% endif %}
+    {% endif %}
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="alert">
+    <form method="post" class="login_class" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <br>
+        {% if not add %}
+
+        <hr>
+
+        <h4><b>Głosy:</b></h4><br>
+        Zmienić głosy? &nbsp; &nbsp;
+        <input type="checkbox" value="change" name="change"><br><br>
+        {% endif %}
+
+        <div id="newElementId">
+        <label>Dodaj głosy do utworu:</label><br><input type="text" name="newVoice">
+        </div >
+        <br><input type="button" class="btn btn-secondary btn-sm" value="dodaj następny głos" onclick="createNewElement();"><br><br>
+
+        <hr>
+        <br>
+        <h4><b>Tagi:</b></h4><br>
+        {% if not add %}
+        <label>Zmienić tagi? &nbsp; &nbsp;</label>
+        <input type="checkbox" value="change_tags" name="change_tags"><br><br>
+        {% endif %}
+<!--        <label>Dodaj tagi do utworów:</label> <br><br>-->
+
+        <div id="newElementId2">
+            Wybierz spośród istniejących: <br><br>
+            <div>
+                <select name="tag">
+                <option value=""></option>
+                {% for tag in all_tags %}
+                    <option value="{{ tag }}">{{ tag }}</option>
+                {% endfor %}
+                </select><br><br>
+            </div>
+        </div>
+        <input type="button" class="btn btn-secondary btn-sm" value="dodaj więcej" onclick="createNewElement2({{ all_tags }});"><br><br><br>
+
+        <div id="newElementId3">
+        Dodaj nowy tag: <br><br>
+
+        <input type="text" name="tag" maxlength="255">
+        </div><br>
+        <input type="button" class="btn btn-secondary btn-sm" value="dodaj więcej", id="add3" onclick="createNewElement3();"><br><br><br>
+
+        <hr>
+        <br>
+
+        {% if add %}
+        <input type="submit" class="btn btn-outline-dark btn-block" value="Dodaj utwór">
+        {% else %}
+        <input type="submit" class="btn btn-outline-dark btn-block" value="Zapisz">
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}
+{% block js_block %}
+
+{% load static %}
+<script type="text/javascript" src="{% static 'js/add_voice.js' %}"></script>
+{% endblock %}

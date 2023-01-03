@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}
+
+    Choir assistant - "{{ song.name }}"  ({{ song.composer }})
+
+{% endblock %}
+
+
+{% block style %}
+
+<style>
+.new_container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+}
+
+.responsive-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+</style>
+
+{% endblock %}
+
+
+{% block page_info %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <h3><b>{{ song.name }}</b></h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <h5><i>{{ song.composer }}</i></h5>
+        </div>
+    </div>
+    {% if user.is_superuser %}
+    <div class="row">
+        <div class="col-9 ml-auto pt-2">
+                <h6 class="text-right">
+                    <a href="/song/{{ song.id }}/{{ event }}/edit">edytuj</a>   /
+                    <a href="/../song/{{ song.id }}/delete">usuń</a>   /
+                    <a href="/../song/{{ song.id }}/{{ event }}/set_voices">ustaw głosy</a>
+                </h6>
+        </div>
+    </div><br>
+    {% endif %}
+</div>
+<div class="container">
+    <div class="row">
+            <a id="previous" href="/song/{{ previous_song }}/{{ event }}" class="mr-auto"><button class="btn btn-outline-secondary btn-sm">poprzedni utwór</button></a>
+            <a id="next" href="/song/{{ next_song }}/{{ event }}" class="ml-auto"><button class="btn btn-outline-secondary btn-sm">następny utwór</button></a>
+    </div>
+</div>
+{% if event != 0 %}
+<h5>
+<div class="pt-3">
+<a href="/event/{{ event }}">wróć do wydarzenia</a>
+</div>
+</h5>
+{% endif %}
+
+{% endblock %}
+
+
+{% block content %}
+
+<div class="container">
+    <div class="row">
+        <div class="col-12 col-lg-6">
+            {% if song.description %}
+            <div  style="word-break: break-word" class="py-2 pb-3">
+                <h4>Opis:</h4> {{ song.description }}
+            </div>
+            {% endif %}
+            {% if song.duration %}
+                <div  style="word-break: break-word" class="py-2 pb-3">
+                    <h4>Czas trwania:</h4> {{ duration }}
+<!--                    </div>-->
+                </div>
+            {% endif %}
+            <div class="py-2">
+                <h4>Głosy:</h4> <ul> {% for i in song.voices %} <li> {{ i }} </li> {% endfor %} </ul>
+
+                {% if song.voices %}
+                    {% if user_voice %}
+
+                        {% if user_voice.voice == None or user_voice.voice == "" %}
+                            <div class="pu-3"><a href="/song/{{ song.id }}/{{ event }}/declare"> {{ alert }} </a></div><br>
+                        {% elif user_voice.voice != 'unisono' and user_voice.voice != 'Unisono' %}
+                            <div class="pu-3">W tym utworze śpiewasz głosem: {{ user_voice.voice }}. {% if more_voices %} <h6><a href="/song/{{ song.id }}/{{ event }}/declare">( Zmień )</a></h6> {% endif %}</div>
+                        {% endif %}
+
+
+
+
+
+                    {% elif alert %}
+                        <div class="pu-3"><a href="/song/{{ song.id }}/{{ event }}/declare"> {{ alert }} </a></div><br>
+                    {% endif %}
+
+                        {% if user_voice.user_knows == True %}
+                            <div class="py-2">
+                                <h5 style="color: darkgreen;">Utwór zaliczony</h5>
+                            </div>
+                        {% else %}
+                            <div class="py-2">
+                                <h5 style="color: darkred;">Utwór niezaliczony</h5>
+                            </div>
+                        {% endif %}
+
+                        {% if user_voice.comment %}
+                            <div class="py-2">
+                                <h4>Komentarz dyrygenta dla ciebie:</h4> {{ user_voice.comment }}
+                            </div>
+                        {% endif %}
+
+
+                {% endif %}
+            </div>
+            {% if files %}
+            <div class="py-2">
+                <h4>Pliki:</h4>
+                <table>
+                    {% for i in files %}
+                        <tr>
+                            <td>
+                                <a href="{{ i.file.url }}" target="_blank">{{ i.file }} </a> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+                            </td>
+                            {% if user.is_superuser %}
+                            <td>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="name" value="{{ i.id }}">
+                                    <input type="submit" value="usuń"/>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+            {% endif %}
+            {% if user.is_superuser %}
+                <br>
+                <a href="/song/{{ song.id }}/add_file">Dodaj plik</a>
+                <br>
+            {% endif %}
+            {% if song.tags %}
+            <br>
+            <div class="py-2">
+                <h4>Tagi utworu:</h4><br>
+                <h5>
+                    {% for i in song.tags %}
+                        <a href="/songs/tag/{{ i }}" class="badge badge-secondary">{{ i }}</a>
+                    {% endfor %}
+                </h5>
+            </div>
+        {% endif %}
+        </div>
+
+
+        {% if song.yt_link %}
+        <div class="col-12 col-lg-6 py-4">
+            <div class="new_container">
+                <iframe class="responsive-iframe" src="https://www.youtube.com/embed/{{ song.yt_link }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+    {% if more_voices or user.is_superuser %}
+        <div class="row py-4">
+            <div class="col-12">
+                <h4 class="py-4">Poszczególne głosy:</h4>
+            </div>
+
+            {% for voice in song.voices %}
+            <div class="col-12">
+                <div class="accordion py-1" id="accordion{{ voice }}">
+                    <div class="row">
+                        <div style='padding: 3px; width: 130px; break-all; cursor: pointer;' class="card-header col-12" id="heading{{ voice }}" data-toggle="collapse" data-target="#collapse{{ voice }}" aria-expanded="true" aria-controls="collapse{{ voice }}" style="height: 4rem;">
+                            <h5 class="text-dark text-center text-wrap"><strong>{{voice}}</strong></h5>
+                        </div>
+                        <div id="collapse{{ voice }}" class="collapse show" aria-labelledby="heading{{ voice }}" data-parent="#accordion{{ voice }}">
+                            <div class="card-body text-center">
+                            {% for user in all_users %}
+                                {%  if user.voice == voice %}
+                                    {% if user.user.is_active %}
+                                        <h6 class="text-left" {% if entitled == True %} {% if user.user_knows == False %} style="color:red; {% endif %}{% endif %}">{{ user.user.first_name }} {{ user.user.last_name }}</h6>
+                                    {% else %}
+                                <h6 class="text-left"><p style="color:darkred">{{ user.user.first_name }} {{ user.user.last_name }}<span style="font-size: 0.75em;"> (nieaktywny)</span></p></h6>
+                                    {% endif %}
+                                {% endif %}
+                            {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}
+
+
+{% block js_block %}
+
+{% load static %}
+<script type="text/javascript" src="{% static 'js/previous_next.js' %}"></script>
+{% endblock %}

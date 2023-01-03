@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Choir assistant - Strona główna
+{% endblock %}
+
+
+{% block page_info %}
+
+<div class="container pb-4" xmlns="http://www.w3.org/1999/html">
+    Informacje bieżące
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!--<div class="row">-->
+    {% if not_a_singer %}
+
+    <div class="row">
+        <div class="col" align="center">
+            Nie jesteś aktywnym śpiewającym - aktualnie brak informacji do wyświetlenia
+        </div>
+    </div>
+
+    {% else %}
+
+    {% if not_declared_events or not_declared_songs or something_to_pass %}
+
+
+        <div class="accordion" id="accordionTwo" style="width:100%;">
+            <div class="row">
+                <div style='padding: 3px; width: 130px; break-all; cursor: pointer;' class="card-header col-12" id="headingTwo" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseOne" style="height: 4rem;">
+                    <h5 class="text-dark text-center text-wrap"><strong>Twoje zaległości:</strong></h5>
+<!--                    {% if total_time_not_complete %}-->
+<!--                        <p style="text-align: center; font-size:11px" class="small">brak informacji o czasie trwania niektórych utworów</p>-->
+<!--                    {% endif %}-->
+                </div>
+            </div>
+            <div id="collapseTwo" class="collapse show" aria-labelledby="headingTwo" data-parent="#accordionTwo">
+                <div class="card-body">
+                    <div class="row">
+                    {% if something_to_pass %}
+                    <div class="col-12 col-md-6 col-lg-4 pt-4 mx-auto" style="border:double;">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="container pb-3">
+                                    <h6><strong>Musisz zaliczyć następujące utwory:</strong></h6>
+                                </div>
+                            </div>
+                            <div class="col-11 mx-auto">
+                                {% for song in songs_to_pass %}
+                                        <div class="row">
+                                            <div class="col ml-2 py-2">
+                                                &#8226; <a href="/song/{{ song.id }}/0">{{ song.name }} ({{ song.composer }})</a>
+                                            </div>
+                                        </div>
+                                {% endfor %}
+                            </div>
+                            {% if there_are_active_sessions %}
+                            <div class="col-11 py-4" align="center">
+                                    <a href="/songs_meetings">
+                                        <h4>Są dostępne sesje zaliczeniowe </h4>
+                                    </a>
+                            </div>
+                            {% else %}
+                            <div class="col-11 py-4" align="center">
+            <!--                        <a href="/songs_meetings">-->
+                                <h5><b>Aktualnie nie ma zaplanowanych sesji zaliczeniowych </b></h5>
+            <!--                        </a>-->
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+
+                    {% if not_declared_events %}
+                    <div class="col-12 col-md-6 col-lg-4 mx-auto pt-4" style="border:double;">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="container pb-3">
+                                    <h6><strong>Nie zadeklarowałeś obecności w następujących wydarzeniach:</strong></h6>
+                                </div>
+                            </div>
+                            <div class="col-11 mx-auto">
+                                <form method="post">
+                                    {% csrf_token %}
+
+                                    {% for i in not_declared_events %}
+                                    <div class="row" align="center">
+                                        <div class="col ml-2 pb-3">
+                                            &#8226; <a href="/event/{{ i.pk }}"> {{ i.name }} ({{ i.date }})</a><br><br>
+
+                                            <div>
+                                               <select name="event_{{ i.pk }}" style="max-width:99%;">
+                                                    <option value=""></option>
+                                                    <option value="1">Będzie</option>
+                                                    <option value="0.75">Spóźni się</option>
+                                                    <option value="0.5">Spóźni się powyżej 30 min</option>
+                                                    <option value="0">Nie będzie</option>
+                                                    <option value="7">Jeszcze nie wie</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div><hr>
+                                    {% endfor %}
+                                    <div align="center" class="pb-4">
+                                        <button type="submit">Zapisz</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+
+                    {% if not_declared_songs %}
+                    <div class="col-12 col-md-6 col-lg-4 mx-auto pt-4" style="border:double;">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="container pb-3">
+                                    <h6><strong>Nie zadeklarowałeś swojego głosu w następujących utworach:</strong></h6>
+                                </div>
+                            </div>
+                            <div class="col-11 mx-auto">
+                                <form method="post">
+                                    {% csrf_token %}
+
+                                    {% for i in not_declared_songs %}
+                                        <div class="row" align="center">
+                                            <div class="col ml-2 pb-3">
+                                                &#8226; <a href="/song/{{ i.pk }}/0">{{ i.name }} ({{ i.composer }})</a><br><br>
+<!--                                            </div>-->
+<!--                                        </div>-->
+<!--                                        <div class="row" align="center">-->
+                                                <div>
+                                                <select name="song_{{ i.id }}">
+                                                    <option value=""></option>
+                                                    {% for voice in i.voices %}
+                                                        <option value="{{ voice }}">{{ voice }}</option>
+                                                    {% endfor %}
+                                                </select>
+                                                </div>
+                                            </div>
+                                        </div><hr>
+                                    {% endfor %}
+                                    <div align="center" class="pb-4">
+                                        <button type="submit" name="songs_voices">Zapisz</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <div class="col-12 text-center">
+            <h6> Nie masz żadnych zaległości!</h6>
+        </div>
+    {% endif %}
+
+
+    <div class="container">
+        <hr>
+        <div class="row">
+            <div class="col py-3" align="center">
+                <b><h3>Twoje najbliższe wydarzenia:</h3></b>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-12 col-sm-8 col-lg-5 ml-auto mr-auto">
+                <ol>
+                    {% for event in users_events %}
+                        {% if event.event.concert %}
+                            <li><a href="../event/{{ event.event.id }}"><span style="color: DarkBlue"><b>{{ event.event.name }}</b></span> <br><span class="weak">{{ event.event.place }}  -  {{ event.event.date }},  godzina {{ event.event.start_hour }}</span></a></li>
+                            {% else %}
+                            <li><a href="../event/{{ event.event.id }}">{{ event.event.name }} <br><span class="weak">{{ event.event.place }}  -  {{ event.event.date }},  godzina {{ event.event.start_hour }}</span></a></li>
+                            {% endif %}<br>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+<!--</div>-->
+
+{% endblock %}

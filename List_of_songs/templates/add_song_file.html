@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}
+Choir assistant - zmiana programu
+{% endblock %}
+
+
+{% block page_info %}
+            Dodawanie pliku do utworu "{{ song.name }}" ({{ song.composer }})
+{% endblock %}
+
+
+{% block content %}
+
+{% if event.program %}
+<div class="container">
+    <div class="row">
+        <div class="col mx-auto">
+            <p>Program wydarzenia zostanie zastąpiony przez wybrany przez Ciebie plik</p>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row py-4">
+            <div class="col mx-auto text-center">
+<!--                <label>Wybierz plik:</label>-->
+                <p><input type="file" name="file"></p><br>
+                <input type="submit" value="Dodaj" name="add"/>
+                <input type="submit" value="Anuluj"/>
+            </div>
+        </div>
+    </form>
+
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Choir assistant - dodawanie wydarzenia
+{% endblock %}
+
+
+{% block page_info %}
+
+    Dodawanie użytkownika
+
+{% endblock %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+{% if warning %}
+    <div class="row">
+        <p><h4>{{ warning }}</h4></p><br><br>
+    </div>
+{% endif %}
+
+<div class="alert">
+    <form method="post" class="login_class" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+        <br><input type="submit" value="Stwórz użytkownika">
+    </form>
+</div>
+
+{% endblock %}

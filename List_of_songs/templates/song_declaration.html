@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+    Choir assistant - deklaracja głosu
+{% endblock %}
+
+
+{% block page_info %}
+
+    Deklaracja głosu
+
+{% endblock %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-auto text-center mx-auto">
+        <p><h4>Tytuł:</h4> {{ song.name }} </p>
+    </div>
+</div>
+<div class="row">
+    <div class="col-auto text-center mx-auto">
+        <p><h4>Kompozytor:</h4> {{ song.composer }} </p>
+    </div>
+</div>
+{% if song.description %}
+<div class="row">
+    <div class="col-auto text-center mx-auto" style="word-break: break-word">
+        <p><h4>Opis:</h4> {{ song.description }} </p>
+    </div>
+</div>
+{% endif %}
+<div class="row">
+    <div class="col-auto text-center mx-auto">
+        <h4>Głosy:</h4>
+    </div>
+</div>
+<div class="row">
+    <div class="col-auto mx-auto text-center">
+        {% for i in song.voices %} <li> {{ i }} </li> {% endfor %} </ul>
+    </div>
+</div>
+<div class="row py-5">
+    <div class="col-auto mx-auto">
+        <form method="post">
+        {% csrf_token %}
+        <select name="voice">
+            {% for i in song.voices %}
+                <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+        <input type="submit" value="Zapisz">
+        </form>
+    </div>
+</div>
+
+{% endblock %}
