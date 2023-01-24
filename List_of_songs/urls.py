@@ -24,8 +24,8 @@ from songs_list.views import *
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    url(r'^home$', AllSongsView.as_view(), name="home"),
-    url(r'^$', LoginView.as_view(), name="login"),
+    url(r'^$', AllSongsView.as_view(), name="home"),
+    url(r'^login$', LoginView.as_view(), name="login"),
     url(r'^logout$', logout_view, name="logout"),
     url(r'^add_user$', AddUserView.as_view(), name="add_user"),
     url(r'^all_users$', AllUsersView.as_view(), name="all_users"),
@@ -43,7 +43,7 @@ urlpatterns = [
     url(r'^song/(?P<song_id>(\d)+)/add_file$', SongAddFileView.as_view(), name="add_file_to_song"),
     url(r'^song/(?P<song_id>(\d)+)/delete$', SongDeleteView.as_view(), name="delete_song"),
     url('hand_backup/', BackupView.as_view(), name="backup"),
-    url('test/', TestView.as_view(), name="test"),
+    url('test/', LittleHelperView.as_view(), name="test"),
 
 ]
 

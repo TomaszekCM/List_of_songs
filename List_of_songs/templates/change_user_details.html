@@ -12,6 +12,7 @@
 {% endblock %}
 
 {% block content %}
+{% load crispy_forms_tags %}
 
 {% if alert %}
 
@@ -22,75 +23,81 @@
         <div class="col-12 col-sm-8 col-md-7 mx-auto">
         <form method="post">
             {% csrf_token %}
-            <div class="form-group row">
-                <div class="col-12">
-                    <label>Nazwa użytkownika:</label>
-                </div>
-                <div class="col-12">
-                    <input class="textinput textInput form-control" type="text" maxlength="255" name="name" placeholder="{{ specific_user.username }}">
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-12">
-                    <label>Imię użytkownika:</label>
-                </div>
-                <div class="col-12">
-                    <input class="textinput textInput form-control" type="text" maxlength="50" name="first" value="{{ specific_user.first_name }}">
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-12">
-                    <label>Nazwisko użytkownika:</label>
-                </div>
-                <div class="col-12">
-                    <input class="textinput textInput form-control" type="text" maxlength="50" name="last" value="{{ specific_user.last_name }}">
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-12">
-                    <label>Email użytkownika:</label>
-                </div>
-                <div class="col-12">
-                    <input class="textinput textInput form-control" type="email" name="email" value="{{ specific_user.email }}">
-                </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-12">
-                    <label>Telefon użytkownika:</label>
-                </div>
-                <div class="col-12">
-                    <input class="textinput textInput form-control" type="text" maxlength="20" name="phone" {% if specific_user_ext.phone %}value="{{ specific_user_ext.phone }} {% endif %}">
-                </div>
-            </div>
-            {% if user.is_superuser %}
-            {% if admin_alert %}
-                <h5 style="color: red;">{{ admin_alert }}</h5>
-            {% endif %}
-            <div class="row py-2">
-                <div class="col-12">
-                    <label>Nadać prawa administratora? &nbsp;&nbsp;&nbsp;
-                        <input type="checkbox" name="admin" {% if specific_user.is_superuser %} checked {% endif %}>
-                    </label>
-                </div>
-            </div>
+            {{ form|crispy }}
 
-            <div class="row py-2">
-                <div class="col-12">
-                    <label>Aktywny chórzysta? &nbsp;&nbsp;&nbsp;
-                        <input type="checkbox" name="singer" {% if specific_user_ext.singer %} checked {% endif %}>
-                    </label>
-                </div>
-            </div>
 
-            <div class="row py-2">
-                <div class="col-12">
-                    <label>Aktywne konto?  &nbsp;&nbsp;&nbsp;
-                        <input type="checkbox" name="active" {% if specific_user.is_active %} checked {% endif %}>
-                    </label>
-                </div>
-            </div>
 
-            {% endif %}
+
+
+<!--            <div class="form-group row">-->
+<!--                <div class="col-12">-->
+<!--                    <label>Nazwa użytkownika:</label>-->
+<!--                </div>-->
+<!--                <div class="col-12">-->
+<!--                    <input class="textinput textInput form-control" type="text" maxlength="255" name="name" placeholder="{{ specific_user.username }}">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="form-group row">-->
+<!--                <div class="col-12">-->
+<!--                    <label>Imię użytkownika:</label>-->
+<!--                </div>-->
+<!--                <div class="col-12">-->
+<!--                    <input class="textinput textInput form-control" type="text" maxlength="50" name="first" value="{{ specific_user.first_name }}">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="form-group row">-->
+<!--                <div class="col-12">-->
+<!--                    <label>Nazwisko użytkownika:</label>-->
+<!--                </div>-->
+<!--                <div class="col-12">-->
+<!--                    <input class="textinput textInput form-control" type="text" maxlength="50" name="last" value="{{ specific_user.last_name }}">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="form-group row">-->
+<!--                <div class="col-12">-->
+<!--                    <label>Email użytkownika:</label>-->
+<!--                </div>-->
+<!--                <div class="col-12">-->
+<!--                    <input class="textinput textInput form-control" type="email" name="email" value="{{ specific_user.email }}">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="form-group row">-->
+<!--                <div class="col-12">-->
+<!--                    <label>Telefon użytkownika:</label>-->
+<!--                </div>-->
+<!--                <div class="col-12">-->
+<!--                    <input class="textinput textInput form-control" type="text" maxlength="20" name="phone" {% if specific_user_ext.phone %}value="{{ specific_user_ext.phone }} {% endif %}">-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            {% if user.is_superuser %}-->
+<!--            {% if admin_alert %}-->
+<!--                <h5 style="color: red;">{{ admin_alert }}</h5>-->
+<!--            {% endif %}-->
+<!--            <div class="row py-2">-->
+<!--                <div class="col-12">-->
+<!--                    <label>Nadać prawa administratora? &nbsp;&nbsp;&nbsp;-->
+<!--                        <input type="checkbox" name="admin" {% if specific_user.is_superuser %} checked {% endif %}>-->
+<!--                    </label>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="row py-2">-->
+<!--                <div class="col-12">-->
+<!--                    <label>Aktywny chórzysta? &nbsp;&nbsp;&nbsp;-->
+<!--                        <input type="checkbox" name="singer" {% if specific_user_ext.singer %} checked {% endif %}>-->
+<!--                    </label>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            <div class="row py-2">-->
+<!--                <div class="col-12">-->
+<!--                    <label>Aktywne konto?  &nbsp;&nbsp;&nbsp;-->
+<!--                        <input type="checkbox" name="active" {% if specific_user.is_active %} checked {% endif %}>-->
+<!--                    </label>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            {% endif %}-->
             <div class="row py-2">
                 <div class="col-12">
                     <input type="submit" value="Zapisz">

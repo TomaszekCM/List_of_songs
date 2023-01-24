@@ -7,11 +7,13 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, redirect
 from django.views import View
 from django.http import Http404
+from django.shortcuts import get_object_or_404
 
 from songs_list.forms import *
 from songs_list.models import *
 
 # FUNCTIONS
+
 
 # This function returns just part of the yt address, which allows to display correctly
 def yt_link_cutter(link):
@@ -43,7 +45,7 @@ def previous_next_songs(song_id, event_id):
     previous_song_id = list_of_all_songs[lower_index].id
     next_song_id = list_of_all_songs[higher_index].id
 
-    return (previous_song_id, next_song_id)
+    return previous_song_id, next_song_id
 
 
 # VIEWS
@@ -64,7 +66,7 @@ class LoginView(View):
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('home')
+                return HttpResponseRedirect('/')
             failed = "Zły login lub hasło!"
             return render(request, "login.html", {"form": form, "failed": failed})
 
@@ -84,41 +86,37 @@ class AddUserView(SuperuserMixin, View):
     """Formular - available only to admins - allowing to create user/superuser"""
 
     def get(self, request):
-        form = AddUserForm()
+        user = request.user
+
+        form = AddUserForm(False, user=user, specific_user="")
         return render(request, "add_user.html", {"form": form})
 
     def post(self, request):
-        form = AddUserForm(request.POST)
+        user = request.user
+        form = AddUserForm(False, request.POST, user=user, specific_user="")
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
-            passwordRepeat = form.cleaned_data['passwordRepeat']
-            name = form.cleaned_data['name']
-            surname = form.cleaned_data['surname']
-            email = form.cleaned_data['email']
-            superuser = form.cleaned_data['superuser']
-            phone = form.cleaned_data['phone']
-            singer = form.cleaned_data['singer']
+            username = form['username'].value()
+            password = form['password'].value()
+            name = form['name'].value()
+            surname = form['surname'].value()
+            email = form['email'].value()
+            superuser = form['superuser'].value()
+            phone = form['phone'].value()
+            singer = form['singer'].value()
 
-            if password == passwordRepeat:
-                if superuser:
-                    user = User.objects.create_superuser(username, password=password, first_name=name,
-                                                         last_name=surname,
-                                                         email=email)
+            user = User.objects.create_user(username, password=password,
+                                            first_name=name,
+                                            last_name=surname,
+                                            email=email)
+            user.is_superuser = superuser
+            user.save()
 
-                else:
-                    user = User.objects.create_user(username, password=password, first_name=name, last_name=surname,
-                                                    email=email)
+            UserExt.objects.create(user=user, phone=phone, singer=singer)
 
-                UserExt.objects.create(user=user, phone=phone, singer=singer)
+            return redirect('home')
 
-                return redirect('home')
-
-            else:
-                warning = "Niepoprawnie potwierdzone hasło (muszą być takie same!)"
-                return render(request, "add_user.html", {"form": form, "warning": warning})
-
-        return render(request, "add_user.html", {"form": form})
+        else:
+            return render(request, "add_user.html", {"form": form})
 
 
 class AllUsersView(LoginRequiredMixin, View):
@@ -136,17 +134,15 @@ class UserView(LoginRequiredMixin, View):
     login_url = 'login'
 
     def get(self, request, user_id):
-        try:
-            specific_user = User.objects.get(pk=user_id)
-        except:
-            raise Http404
+        specific_user = get_object_or_404(User, pk=user_id)
         try:
             specific_user_ext = UserExt.objects.get(user=specific_user)
         except:
             specific_user_ext = UserExt.objects.create(user=specific_user)
 
         return render(request, "user_view.html",
-                      {"specific_user": specific_user, "specific_user_ext": specific_user_ext})
+                      {"specific_user": specific_user,
+                       "specific_user_ext": specific_user_ext})
 
 
 class UserDetailsChangeView(LoginRequiredMixin, View):
@@ -156,103 +152,63 @@ class UserDetailsChangeView(LoginRequiredMixin, View):
     def get(self, request, user_id):
         user = request.user
         if user.is_superuser or int(user.id) == int(user_id):
-            try:
-                specific_user = User.objects.get(pk=user_id)
-            except:
-                raise Http404
+            specific_user = get_object_or_404(User, pk=user_id)
             specific_user_ext = UserExt.objects.get(user=specific_user)
+            form = EditUserForm(True, user=user, specific_user=specific_user,
+                                initial={'username': specific_user.username,
+                                            "name": specific_user.first_name,
+                                            "surname": specific_user.last_name,
+                                            "email": specific_user.email,
+                                            "phone": specific_user_ext.phone,
+                                            "superuser": specific_user.is_superuser,
+                                            "singer": specific_user_ext.singer,
+                                            "active": specific_user.is_active
+                                         })
 
             return render(request, "change_user_details.html",
-                          {"specific_user": specific_user, "specific_user_ext": specific_user_ext})
-
+                          {"form": form, "specific_user": specific_user, "specific_user_ext": specific_user_ext})
         else:
             return HttpResponse("Nie twoje - nie dotykaj!")
 
     def post(self, request, user_id):
         user = request.user
-        try:
-            edited_user = User.objects.get(pk=user_id)
-        except:
-            raise Http404
-        new_name = request.POST['name']
-        new_first = request.POST['first']
-        new_last = request.POST['last']
-        new_mail = request.POST['email']
-        new_phone = request.POST['phone']
-        singer = False
-        admin = False
-        active = False
+        edited_user = get_object_or_404(User, pk=user_id)
+        edited_user_ext = UserExt.objects.get(user=edited_user)
 
-        try:
-            singer = request.POST['singer']
-            singer = True
-        except:
-            pass
-        try:
-            admin = request.POST['admin']
-            admin = True
-        except:
-            pass
-        try:
-            active = request.POST['active']
-            active = True
-        except:
-            pass
+        form = EditUserForm(True, request.POST, user=user, specific_user=edited_user)
+        if form.is_valid():
+            edited_user.username = form['username'].value()
+            edited_user.first_name = form['name'].value()
+            edited_user.last_name = form['surname'].value()
+            edited_user.email = form['email'].value()
+            edited_user_ext.phone = form['phone'].value()
 
-        if new_name:
-            try:
-                User.objects.get(username=new_name)
-                alert = "Taki użytkownik już istnieje"
-                specific_user_ext = UserExt.objects.get(user=edited_user)
-                return render(request, "change_user_details.html",
-                              {"specific_user": edited_user, "specific_user_ext": specific_user_ext, "alert": alert})
-            except:
-                edited_user.username = new_name
-
-        if user.is_superuser or int(user.id) == int(user_id):
-            if new_first:
-                edited_user.first_name = new_first
-            if new_last:
-                edited_user.last_name = new_last
-            if new_mail:
-                edited_user.email = new_mail
+            if 'superuser' in request.POST:
+                edited_user.is_superuser = True
             else:
-                edited_user.email = ""
+                if edited_user.is_superuser:
+                    edited_user.is_superuser = False
+
+            if 'singer' in request.POST:
+                edited_user_ext.singer = True
+            else:
+                if edited_user_ext.singer:
+                    edited_user_ext.singer = False
+
+            if 'active' in request.POST:
+                edited_user.is_active = True
+            else:
+                if edited_user.is_active:
+                    edited_user.is_active = False
 
             edited_user.save()
-
-            edited_user_ext = UserExt.objects.get(user=edited_user)
-            edited_user_ext.phone = new_phone
-            edited_user_ext.singer = singer
             edited_user_ext.save()
 
-            if user.is_superuser:
-                if admin:
-                    edited_user.is_superuser = True
-                    edited_user.save()
-                else:
-                    admins = User.objects.filter(is_superuser=True)
-                    if len(admins) <= 1:
-                        specific_user = User.objects.get(pk=user_id)
-                        specific_user_ext = UserExt.objects.get(user=specific_user)
-
-                        ctx = {"specific_user": specific_user,
-                               "specific_user_ext": specific_user_ext,
-                               "admin_alert": "Nie można usunąć wszystkich administratorów!"}
-
-                        return render(request, "change_user_details.html", ctx)
-                    else:
-                        edited_user.is_superuser = False
-                        edited_user.save()
-
-                if active:
-                    edited_user.is_active = True
-                    edited_user.save()
-                else:
-                    edited_user.is_active = False
-                    edited_user.save()
-
             return redirect('all_users')
+
+        else:
+            return render(request, "change_user_details.html",
+                          {"form": form, "specific_user": edited_user})
 
 
 class ResetPasswordView(LoginRequiredMixin, View):
@@ -273,6 +229,7 @@ class ResetPasswordView(LoginRequiredMixin, View):
     def post(self, request, user_id):
         if int(request.user.id) == int(user_id):
             form = PasswordChangeForm(request.POST)
+            print(request.POST)
             if form.is_valid():
                 password = form.cleaned_data['password']
                 passwordRepeat = form.cleaned_data['passwordRepeat']
@@ -283,7 +240,7 @@ class ResetPasswordView(LoginRequiredMixin, View):
                     user = authenticate(request, username=user.username, password=password)
                     login(request, user)
 
-                    return HttpResponseRedirect('/home')
+                    return HttpResponseRedirect('/')
 
                 else:
                     msg = "niepoprawnie potwierdzone hasło (muszą być takie same!)"
@@ -299,7 +256,7 @@ class AddSongView(SuperuserMixin, View):
 
     def get(self, request):
         form = AddSongForm()
-        all_tags = AllTags.objects.all()
+        all_tags = AllTags.objects.all().order_by("name")
         tags = []
         for tag in all_tags:
             tags.append(tag.name)
@@ -813,9 +770,8 @@ class BackupView(SuperuserMixin, View):
         return redirect("/home")
 
 
-class TestView(SuperuserMixin, View):
+class LittleHelperView(SuperuserMixin, View):
     """To be used when needed"""
 
     def get(self, request):
-
         return HttpResponse("git")
