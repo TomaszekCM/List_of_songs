@@ -216,12 +216,9 @@ class ResetPasswordView(LoginRequiredMixin, View):
     login_url = 'login'
 
     def get(self, request, user_id):
-        form = PasswordChangeForm()
-        try:
-            user = User.objects.get(pk=user_id)
-        except:
-            raise Http404
         if int(request.user.id) == int(user_id):
+            form = PasswordChangeForm()
+            user = get_object_or_404(User, pk=user_id)
             return render(request, "change_passwd.html", {"form": form, "user": user})
         else:
             return HttpResponse("Nie twoje - nie dotykaj!")
@@ -229,22 +226,16 @@ class ResetPasswordView(LoginRequiredMixin, View):
     def post(self, request, user_id):
         if int(request.user.id) == int(user_id):
             form = PasswordChangeForm(request.POST)
-            print(request.POST)
             if form.is_valid():
                 password = form.cleaned_data['password']
-                passwordRepeat = form.cleaned_data['passwordRepeat']
-                if password == passwordRepeat:
-                    user = User.objects.get(pk=user_id)
-                    user.set_password(password)
-                    user.save()
-                    user = authenticate(request, username=user.username, password=password)
-                    login(request, user)
-
-                    return HttpResponseRedirect('/')
-
-                else:
-                    msg = "niepoprawnie potwierdzone hasło (muszą być takie same!)"
-                    return render(request, "change_passwd.html", {"form": form, "msg": msg})
+                user = User.objects.get(pk=user_id)
+                user.set_password(password)
+                user.save()
+                user = authenticate(request, username=user.username, password=password)
+                login(request, user)
+                return HttpResponseRedirect('/')
+            else:
+                return render(request, "change_passwd.html", {"form": form})
         else:
             return HttpResponse("Nie twoje - nie dotykaj!")
 

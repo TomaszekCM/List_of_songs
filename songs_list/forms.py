@@ -108,9 +108,9 @@ class EditSongForm(forms.Form):
 
 class PasswordChangeForm(forms.Form):
     password = forms.CharField(label="podaj hasło", max_length=50, widget=forms.PasswordInput)
-    passwordRepeat = forms.CharField(label="potwierdź hasło", max_length=50, widget=forms.PasswordInput)
+    password_repeated = forms.CharField(label="potwierdź hasło", max_length=50, widget=forms.PasswordInput)
 
-
-
-
-
+    def clean(self):
+        cleaned_data = super().clean()
+        if cleaned_data['password'] != cleaned_data['password_repeated']:
+            raise ValidationError("Niepoprawnie powtórzone hasło!")
