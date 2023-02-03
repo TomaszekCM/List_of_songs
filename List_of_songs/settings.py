@@ -136,8 +136,8 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'List_of_songs/static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-LOGIN_URL = '/'
-LOGIN_REDIRECT_URL = "/home"
+LOGIN_URL = '/login'
+LOGIN_REDIRECT_URL = "/"
 
 
 try:

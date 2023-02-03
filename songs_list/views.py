@@ -121,7 +121,6 @@ class AddUserView(SuperuserMixin, View):
 
 class AllUsersView(LoginRequiredMixin, View):
     """List of all users"""
-    login_url = 'login'
 
     def get(self, request):
         all_active_users = User.objects.filter(is_active=True).order_by("last_name")
@@ -131,7 +130,6 @@ class AllUsersView(LoginRequiredMixin, View):
 
 class UserView(LoginRequiredMixin, View):
     """Specific user's details. Logged user and admin can see links to change details"""
-    login_url = 'login'
 
     def get(self, request, user_id):
         specific_user = get_object_or_404(User, pk=user_id)
@@ -147,7 +145,6 @@ class UserView(LoginRequiredMixin, View):
 
 class UserDetailsChangeView(LoginRequiredMixin, View):
     """Changing user's details"""
-    login_url = 'login'
 
     def get(self, request, user_id):
         user = request.user
@@ -213,7 +210,6 @@ class UserDetailsChangeView(LoginRequiredMixin, View):
 
 class ResetPasswordView(LoginRequiredMixin, View):
     """User can change user's password"""
-    login_url = 'login'
 
     def get(self, request, user_id):
         if int(request.user.id) == int(user_id):
@@ -321,7 +317,6 @@ class AddSongView(SuperuserMixin, View):
 
 class AllSongsView(LoginRequiredMixin, View):
     """Shows list of all available songs"""
-    login_url = 'login'
 
     def get(self, request):
         all_songs = Song.objects.all().order_by("name")
@@ -350,7 +345,6 @@ class AllSongsView(LoginRequiredMixin, View):
 
 class SongsWithTagView(LoginRequiredMixin, View):
     """Shows all songs with the specific tag"""
-    login_url = 'login'
 
     def get(self, request, tag_name):
         try:
@@ -363,7 +357,6 @@ class SongsWithTagView(LoginRequiredMixin, View):
 
 class SongView(LoginRequiredMixin, View):
     """Each song's details with user information about his one's and link to change his declaration"""
-    login_url = 'login'
 
     def get(self, request, song_id, event_id):
         try:
@@ -438,21 +431,14 @@ class SongView(LoginRequiredMixin, View):
 
 class SongDeclarationView(LoginRequiredMixin, View):
     """As currently there is 'no front', it is easier to make such view"""
-    login_url = 'login'
 
     def get(self, request, song_id, event_id):
-        try:
-            song = Song.objects.get(pk=song_id)
-        except:
-            raise Http404
+        song = get_object_or_404(Song, pk=song_id)
         user = request.user
         return render(request, "song_declaration.html", {"song": song, "user": user})
 
     def post(self, request, song_id, event_id):
-        try:
-            song = Song.objects.get(pk=song_id)
-        except:
-            raise Http404
+        song = get_object_or_404(Song, pk=song_id)
         user = request.user
         voice = request.POST['voice']
 
@@ -471,10 +457,7 @@ class SongSetVoicesView(SuperuserMixin, View):
     """Admin can set users' voices to the song without their permission"""
 
     def get(self, request, song_id, event_id):
-        try:
-            song = Song.objects.get(pk=song_id)
-        except:
-            raise Http404
+        song = get_object_or_404(Song, pk=song_id)
         all_active_users = User.objects.filter(is_active=True).filter(userext__singer=True).order_by("last_name")
 
         current_voices = {}
@@ -490,10 +473,7 @@ class SongSetVoicesView(SuperuserMixin, View):
                       {"song": song, "all_users": all_active_users, "current_voices": current_voices})
 
     def post(self, request, song_id, event_id):
-        try:
-            song = Song.objects.get(pk=song_id)
-        except:
-            raise Http404
+        song = get_object_or_404(Song, pk=song_id)
         users_voices = request.POST
         all_voice_declarations = UserSong.objects.filter(song=song)
         for i in users_voices:
@@ -513,10 +493,7 @@ class SongSetVoicesView(SuperuserMixin, View):
 class EditSongView(SuperuserMixin, View):
 
     def get(self, request, song_id, event_id):
-        try:
-            song = Song.objects.get(id=song_id)
-        except:
-            raise Http404
+        song = get_object_or_404(Song, id=song_id)
         tags = []
 
         try:
@@ -540,10 +517,7 @@ class EditSongView(SuperuserMixin, View):
     def post(self, request, song_id, event_id):
         form = EditSongForm(request.POST)
         if form.is_valid():
-            try:
-                song = Song.objects.get(pk=song_id)
-            except:
-                raise Http404
+            song = get_object_or_404(Song, pk=song_id)
             old_voices = song.voices
             song.name = request.POST['name']
             song.composer = request.POST['composer']
@@ -635,10 +609,7 @@ class EditSongView(SuperuserMixin, View):
             return HttpResponseRedirect("/song/%s/%s" % (song_id, event_id))
 
         # WHEN FORM IS INVALID, WE HAVE TO DISPLAY EVERYTHING ONCE AGAIN - TO BE REWRITTEN TO AVOID HAVING THE ABOWE TWICE IN ONE VIEW
-        try:
-            song = Song.objects.get(id=song_id)
-        except:
-            raise Http404
+        song = get_object_or_404(Song, id=song_id)
         tags = []
         try:
             all_tags = AllTags.objects.all()
@@ -663,19 +634,12 @@ class EditSongView(SuperuserMixin, View):
 class SongAddFileView(SuperuserMixin, View):
 
     def get(self, request, song_id):
-        try:
-            song = Song.objects.get(pk=song_id)
-        except:
-            raise Http404
+        song = get_object_or_404(Song, pk=song_id)
         return render(request, "add_song_file.html", {"song": song})
 
     def post(self, request, song_id):
         if "add" in request.POST:
-            try:
-                song = Song.objects.get(pk=song_id)
-            except:
-                raise Http404
-
+            song = get_object_or_404(Song, pk=song_id)
             try:
                 new_file = request.FILES['file']
                 SongFiles.objects.create(song=song, file=new_file)
@@ -692,11 +656,7 @@ class SongDeleteView(SuperuserMixin, View):
 
     def get(self, request, song_id):
         if request.user.is_superuser:
-            try:
-                song = Song.objects.get(pk=song_id)
-            except:
-                raise Http404
-
+            song = get_object_or_404(Song, pk=song_id)
             return render(request, "delete_song.html", {"song": song})
 
         else:
@@ -706,10 +666,7 @@ class SongDeleteView(SuperuserMixin, View):
         if request.user.is_superuser:
 
             if "Usuń" in request.POST:
-                try:
-                    song = Song.objects.get(pk=song_id)
-                except:
-                    raise Http404
+                song = get_object_or_404(Song, pk=song_id)
 
                 # first of all, we have to manage tags related issues
                 if song.tags is not None:
@@ -758,7 +715,7 @@ class BackupView(SuperuserMixin, View):
             now.minute)
         command = "python3 manage.py dumpdata --format json -e contenttypes -e auth.permission > backups/" + full_time + ".json"
         os.system(command)
-        return redirect("/home")
+        return redirect("/")
 
 
 class LittleHelperView(SuperuserMixin, View):
