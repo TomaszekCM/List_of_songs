@@ -503,19 +503,27 @@ class EditSongView(SuperuserMixin, View):
         except:
             pass
 
-        try:
+        if song.yt_link:
             yt_extension = "https://www.youtube.com/watch?v=" + song.yt_link
-            form = EditSongForm(initial={'duration': song.duration, 'name': song.name, "composer": song.composer,
-                                         "yt_link": yt_extension,
-                                         "description": song.description, "voices": song.voices, "scores": song.scores})
-        except:
-            form = EditSongForm(initial={'duration': song.duration, 'name': song.name, "composer": song.composer,
-                                         "description": song.description, "voices": song.voices, "scores": song.scores})
+        else:
+            yt_extension = ""
+
+        for i in song.tags:
+            print(i)
+
+        form = EditSongForm(initial={'duration': song.duration,
+                                     'name': song.name,
+                                     "composer": song.composer,
+                                     "yt_link": yt_extension,
+                                     "description": song.description,
+                                     "voices": song.voices,
+                                     "scores": song.scores})
 
         return render(request, "add_song.html", {"form": form, "song": song, "all_tags": tags})
 
     def post(self, request, song_id, event_id):
         form = EditSongForm(request.POST)
+        print(request.POST)
         if form.is_valid():
             song = get_object_or_404(Song, pk=song_id)
             old_voices = song.voices
@@ -565,21 +573,19 @@ class EditSongView(SuperuserMixin, View):
 
                         UserSong.objects.create(user=user, voice=clear_voices[0], song=song)
 
+
             # TAGS RELATED UTILITIES
-            if "change_tags" in request.POST:
-                new_tags = request.POST.getlist('tag')
-                new_tags = [i for i in new_tags if i != '']
-                # print("lista nowych tagów: ", new_tags)
-                # print("stare tagi: ", song.tags)
 
-                if new_tags != song.tags:
-                    # print("przeszło")
-                    if song.tags is not None:
-                        old_tags = song.tags
+            new_tags = [i for i in request.POST.getlist('tag') if i != '']
+            new_tags = list(set(new_tags))
+            if new_tags != song.tags:
+                if song.tags is not None:
+                    old_tags = song.tags
 
-                        # first of all, old tags have to be managed, so for each old tag we have to get an existing recorg
-                        # if such exists and to remove song index from the list of tagged songs
-                        for tag in old_tags:
+                    # first of all, old tags have to be managed, so for each old tag we have to get an existing recorg
+                    # if such exists and to remove song index from the list of tagged songs
+                    for tag in old_tags:
+                        if tag not in new_tags:
                             try:
                                 tag_to_remove_from_song = AllTags.objects.get(name=tag)
                                 if song.id in tag_to_remove_from_song.songs_tagged:
@@ -591,19 +597,19 @@ class EditSongView(SuperuserMixin, View):
                             except:
                                 pass
 
-                    if new_tags == ['']:
-                        song.tags.clear()
-                    else:
-                        song.tags = new_tags
-                        # now we have to add song intex to the list of the tagged songs in each tag
-                        for tag in new_tags:
-                            try:
-                                current_tag = AllTags.objects.get(name=tag)
-                                if song.id not in current_tag.songs_tagged:
-                                    current_tag.songs_tagged.append(song.id)
-                                    current_tag.save()
-                            except:
-                                AllTags.objects.create(name=tag, songs_tagged=[song.id])
+                if new_tags == ['']:
+                    song.tags.clear()
+                else:
+                    song.tags = new_tags
+                    # now we have to add song intex to the list of the tagged songs in each tag
+                    for tag in new_tags:
+                        try:
+                            current_tag = AllTags.objects.get(name=tag)
+                            if song.id not in current_tag.songs_tagged:
+                                current_tag.songs_tagged.append(song.id)
+                                current_tag.save()
+                        except:
+                            AllTags.objects.create(name=tag, songs_tagged=[song.id])
             song.save()
 
             return HttpResponseRedirect("/song/%s/%s" % (song_id, event_id))

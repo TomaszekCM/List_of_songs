@@ -42,36 +42,10 @@
                     <a href='/' class='nav-link'>Główna</a>
                 </li>
                 {% if user.is_superuser %}
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Utwory
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{% url 'all_songs' %}">Lista utworów</a>
-                        <a class="dropdown-item" href="{% url 'add_song' %}">Dodaj utwór</a>
-                    </div>
+                <li class='nav-item'>
+                    <a href="{% url 'add_song' %}" class='nav-link'>Dodaj utwór</a>
                 </li>
-                {% else %}
-
-
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="http://example.com" id="navbarDropdownMenuLink"
-                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Utwory
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">
-                        <a class="dropdown-item" href="{% url 'all_songs' %}">Lista utworów</a>
-                    </div>
-                </li>
-
-
-
-<!--                <li class='nav-item'>-->
-<!--                    <a href="{% url 'all_songs' %}" class='nav-link'>Utwory</a>-->
-<!--                </li>-->
                 {% endif %}
-
 
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="http://example.com"
@@ -86,21 +60,6 @@
                         {% endif %}
                     </div>
                 </li>
-
-
-<!--                <li class="nav-item dropdown">-->
-<!--                    <a class="nav-link dropdown-toggle" href="http://example.com"-->
-<!--                       data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">-->
-<!--                        Dokumenty-->
-<!--                    </a>-->
-<!--                    <div class="dropdown-menu dropdown-menu-left" aria-labelledby="navbarDropdownMenuLink">-->
-<!--                        <a class="dropdown-item" href="/media/VADEMECUM CHÓRZYSTY_2022_02.pdf" TARGET="_blank">Vademecum</a>-->
-<!--                        <a class="dropdown-item" href="/media/ulotka-CM-2021_PL.pdf" TARGET="_blank">Folder</a>-->
-<!--                    </div>-->
-<!--                </li>-->
-
-
-
 
                 {% if user.is_superuser %}
                 <li class="nav-item dropdown">

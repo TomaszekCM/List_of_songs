@@ -43,21 +43,28 @@
         <hr>
         <br>
         <h4><b>Tagi:</b></h4><br>
-        {% if not add %}
-        <label>Zmienić tagi? &nbsp; &nbsp;</label>
-        <input type="checkbox" value="change_tags" name="change_tags"><br><br>
-        {% endif %}
-<!--        <label>Dodaj tagi do utworów:</label> <br><br>-->
 
         <div id="newElementId2">
             Wybierz spośród istniejących: <br><br>
             <div>
+                {% if song.tags %}
+                    {% for existing_tag in song.tags %}
+                        <select name="tag">
+                        <option value=""></option>
+                        {% for tag in all_tags %}
+                        <option value="{{ tag }}" {% if existing_tag == tag %}selected {% endif %}>{{ tag }}</option>
+                        {% endfor %}
+                        </select><br><br>
+                    {% endfor %}
+                {% endif %}
+
                 <select name="tag">
                 <option value=""></option>
                 {% for tag in all_tags %}
                     <option value="{{ tag }}">{{ tag }}</option>
                 {% endfor %}
                 </select><br><br>
+
             </div>
         </div>
         <input type="button" class="btn btn-secondary btn-sm" value="dodaj więcej" onclick="createNewElement2({{ all_tags }});"><br><br><br>
